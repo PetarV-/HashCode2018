@@ -26,9 +26,8 @@ void load_test(const char *test_name)
     s << "tests/" << test_name << ".in";
     FILE *f = fopen(s.str().c_str(), "r");
 
-    int n;
     fscanf(f, "%d %d %d %d %d %d", &rows, &cols, &n_cars, &n_rides, &start_bonus, &steps);
-    for(int i = 0; i < n; i++)
+    for(int i = 0; i < n_rides; i++)
     {
         ride x;
         fscanf(f, "%d %d %d %d %d %d", &x.start_i, &x.start_j, &x.end_i, &x.end_j, &x.start_t, &x.end_t);
