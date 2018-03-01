@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -185,12 +186,6 @@ int main(int argc, char *argv[])
         else load_test(argv[1]);
     }
     else load_test(argv[1]);
-
-    printf("%d\n",rides.size());
-    printf("%d\n",mx_score());
-    clean_rides();
-    printf("%d\n",rides.size());
-    printf("%d\n",mx_score());
     
     return 0;
 }
