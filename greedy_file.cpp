@@ -3,8 +3,10 @@
 #include <vector>
 #include <cstdio>
 #include <algorithm>
+#include <ctime>
 
 using namespace std;
+
 
 struct ride
 {
@@ -20,6 +22,63 @@ struct solution
 
 int rows, cols, n_cars, n_rides, start_bonus, steps;
 std::vector<ride> rides;
+
+void save_checkpoint(const solution &sol, const char *filename)
+{
+    FILE *f = fopen(filename, "w");
+    if(!f)
+    {
+        std::cerr << "Could not write to checkpoint file: " << filename << std::endl;
+        return;
+    }
+
+    for(int i = 0; i < sol.sol.size(); i++)
+    {
+        for(int x : sol.sol[i]) fprintf(f, "%d ", x);
+        fprintf(f, "-1\n");
+    }
+
+    for(int x : sol.ok_ride)
+        fprintf(f, "%c", '0' + x);
+    fprintf(f, "\n");
+
+    fclose(f);
+}
+
+solution load_checkpoint(const char *filename)
+{
+    FILE *f = fopen(filename, "r");
+    solution res;
+    
+    if(!f)
+    {
+        std::cerr << "Could not read checkpoint file: " << filename << std::endl;
+        return res;
+    }
+    
+    for(int i = 0; i < n_cars; i++)
+    {
+        std::vector<int> tmp;
+        while(1)
+        {
+            int x;
+            fscanf(f, "%d", &x);
+            if(x == -1) break;
+            tmp.push_back(x);
+        }
+        res.sol.push_back(tmp);
+    }
+
+    for(int i = 0; i < n_rides; i++)
+    {
+        char c;
+        fscanf(f, " %c", &c);
+        res.ok_ride.push_back(c - '0');
+    }
+
+    fclose(f);
+    return res;
+}
 
 inline int abs1(int x)
 {
@@ -191,15 +250,18 @@ bool equal(const solution &a, const solution &b)
 
 solution full_solve(solution init)
 {
-    init = greedy_solve(init, 0);
+    init = greedy_solve(init, 1, true);
     int curr_score = score(init);
 
-    for(int t = 0; t < 10000; t++)
+    auto last_save = clock();
+    int save_id = 0;
+    
+    while(1)
     {
-        for(int rem = 0; rem < 5; rem++)
+        for(int rem = 0; rem < 15; rem++)
             remove_car(init, rand() % n_cars);
 
-        solution next = greedy_solve(init, rand() % 3);
+        solution next = greedy_solve(init, rand() % 3, rand() % 5 > 0);
         if(equal(next, init)) std::cerr << "nothing changed" << std::endl;
         int next_score = calc_score(next);
         if(next_score > curr_score)
@@ -207,6 +269,17 @@ solution full_solve(solution init)
             printf("Improved score to %d (+%d)\n", next_score, next_score - curr_score);
             curr_score = next_score;
             init = next;
+        }
+
+        if(clock() > last_save + 60 * CLOCKS_PER_SEC)
+        {
+            stringstream s;
+            s << "checkpoints/" << save_id++;
+            save_checkpoint(init, s.str().c_str());
+            s << ".out";
+            print_output(init, s.str().c_str());
+
+            last_save = clock();
         }
     }
 
@@ -236,7 +309,7 @@ int main(int argc, char *argv[])
     gr_sol.ok_ride = vector<int>(n_rides);
     gr_sol.sol = vector<vector<int> >(n_cars, vector<int>());
 
-    solution tst = greedy_solve(gr_sol, 0, true);
+    solution tst = full_solve(gr_sol);
 
     print_output(tst, argv[1]);
 
