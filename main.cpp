@@ -1,12 +1,19 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <cstdio>
 
 struct ride
 {
     int start_i, start_j, end_i, end_j;
     int start_t, end_t;
 } ;
+
+struct sol
+{
+    vector<int> ok_ride;
+    vector<vector<int> > sol;
+};
 
 int rows, cols, n_cars, n_rides, start_bonus, steps;
 std::vector<ride> rides;
