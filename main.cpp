@@ -53,6 +53,16 @@ void clean_rides()
     rides=nwrides;
 }
 
+int calc_score(const solution &sol) {
+    int score = 0;
+    for(int i = 0; i < sol.ok_ride.size(); i++) {
+        if (sol.ok_ride[i] == 0) continue;
+        if (sol.ok_ride[i] == 2) score += start_bonus;
+        score += abs(rides[i].start_i-rides[i].end_i) + abs(rides[i].start_j-rides[i].end_j); 
+    }
+    return score;
+}
+
 void print_output(const solution &sol, const char *filename)
 {
     if(sol.sol.size() != n_cars)
@@ -69,6 +79,7 @@ void print_output(const solution &sol, const char *filename)
             fprintf(f, " %d", x);
         fprintf(f, "\n");
     }
+    std::cerr << "Output score: " << calc_score(sol) << std::endl;
 
     fclose(f);
     std::cerr << "Wrote output file " << filename << std::endl;
