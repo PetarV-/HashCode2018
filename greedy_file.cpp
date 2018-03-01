@@ -33,7 +33,6 @@ inline int max1(int a, int b)
 
 solution greedy_solve(solution s)
 {
-    printf("OVDE\n");
     solution ret;
     ret.ok_ride = s.ok_ride;
     ret.sol = s.sol;
@@ -47,7 +46,7 @@ solution greedy_solve(solution s)
             int best_r = -1;
             int best_t = -1;
             int best_f = -1;
-            int best_st = -1;
+            int best_st = 0;
             for (int j=0;j<n_rides;j++)
             {
                 if (!ret.ok_ride[j])
@@ -57,9 +56,10 @@ solution greedy_solve(solution s)
                     int tt = abs1(rides[j].end_i - rides[j].start_i) + abs1(rides[j].end_j - rides[j].start_j);
                     int arr_t = max1(rides[j].start_t, cur_t + dt);
                     int ret_t = arr_t + tt;
+                    int cur_st = (arr_t == rides[j].start_t);
                     if (ret_t <= rides[j].end_t)
                     {
-                        if (best_r == -1 || arr_t < best_t) 
+                        if (best_r == -1 || cur_st > best_st || (cur_st == best_st && arr_t < best_t)) 
                         {
                             // can also try ret_t < best_t
                             best_r = j;
