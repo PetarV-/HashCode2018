@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <algorithm>
 #include <ctime>
+#include <string>
 
 using namespace std;
 
@@ -227,7 +228,7 @@ int calc_score(const solution &sol) {
     for(int i = 0; i < sol.ok_ride.size(); i++) {
         if (sol.ok_ride[i] == 0) continue;
         if (sol.ok_ride[i] == 2) score += start_bonus;
-        score += abs(rides[i].start_i-rides[i].end_i) + abs(rides[i].start_j-rides[i].end_j); 
+        if(sol.ok_ride[i] == 1 || sol.ok_ride[i] == 2) score += abs(rides[i].start_i-rides[i].end_i) + abs(rides[i].start_j-rides[i].end_j); 
     }
     return score;
 }
@@ -248,38 +249,61 @@ bool equal(const solution &a, const solution &b)
     return true;
 }
 
-solution full_solve(solution init)
+int best_known;
+string prefix;
+
+solution full_solve(solution init, int n_rem)
 {
-    init = greedy_solve(init, 1, true);
+    init = greedy_solve(init, 1, false);
     int curr_score = score(init);
 
     auto last_save = clock();
     int save_id = 0;
-    
-    while(1)
-    {
-        for(int rem = 0; rem < 15; rem++)
-            remove_car(init, rand() % n_cars);
 
-        solution next = greedy_solve(init, rand() % 3, rand() % 5 > 0);
-        if(equal(next, init)) std::cerr << "nothing changed" << std::endl;
+    bool first = true;
+    static const int TTL = (n_rem == 20) ? 12346789 : 50;
+    int ttl = TTL;
+    while(ttl--)
+    {
+        solution next = init;
+        for(int rem = 0; rem < 15; rem++)
+            remove_car(next, rand() % n_cars);
+
+        if(!first)
+            for(int &x : next.ok_ride)
+                if(x == 0 && rand() % 50 == 0)
+                    x = 3;
+        first = false;
+        
+        next = greedy_solve(next, rand() % 3, rand() % 2 > 0);
+//        if(n_rem == 50) next = full_solve(next, 20);
+        if(n_rem == 20) next = full_solve(next, 5);
+
+        for(int &x : next.ok_ride)
+            if(x == 3) x = 0;
+//        if(equal(next, init)) std::cerr << "nothing changed" << std::endl;
         int next_score = calc_score(next);
         if(next_score > curr_score)
         {
+            if(n_rem < 50) printf("    ");
+            if(n_rem < 20) printf("    ");
             printf("Improved score to %d (+%d)\n", next_score, next_score - curr_score);
             curr_score = next_score;
             init = next;
+            ttl = TTL;
         }
 
-        if(clock() > last_save + 60 * CLOCKS_PER_SEC)
+        if(clock() > last_save + 20 * CLOCKS_PER_SEC && curr_score > best_known)
         {
+            best_known = curr_score;
             stringstream s;
-            s << "checkpoints/" << save_id++;
+            s << "checkpoints/" << prefix << "-" << save_id++;
             save_checkpoint(init, s.str().c_str());
             s << ".out";
             print_output(init, s.str().c_str());
 
             last_save = clock();
+            std::cerr << "checkpoint " << save_id - 1 << ": " << calc_score(init) << std::endl;
         }
     }
 
@@ -305,11 +329,13 @@ int main(int argc, char *argv[])
     }
     else load_test(argv[1]);
 
+    prefix = argv[1];
+
     solution gr_sol;
     gr_sol.ok_ride = vector<int>(n_rides);
     gr_sol.sol = vector<vector<int> >(n_cars, vector<int>());
 
-    solution tst = full_solve(gr_sol);
+    solution tst = full_solve(gr_sol, 20);
 
     print_output(tst, argv[1]);
 
