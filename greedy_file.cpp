@@ -251,6 +251,7 @@ bool equal(const solution &a, const solution &b)
 
 int best_known;
 string prefix;
+int save_id = 0;
 
 solution full_solve(solution init, int n_rem)
 {
@@ -258,7 +259,6 @@ solution full_solve(solution init, int n_rem)
     int curr_score = score(init);
 
     auto last_save = clock();
-    int save_id = 0;
 
     bool first = true;
     int TTL = (n_rem == 20) ? 12346789 : 200;
@@ -277,7 +277,7 @@ solution full_solve(solution init, int n_rem)
         
         next = greedy_solve(next, rand() % 3, rand() % 2 > 0);
 //        if(n_rem == 50) next = full_solve(next, 20);
-        if(n_rem > 5) next = full_solve(next, 5);
+        if(n_rem > 5 && calc_score(next) >= curr_score / 100 * 99) next = full_solve(next, 5);
 
         for(int &x : next.ok_ride)
             if(x == 3) x = 0;
