@@ -2,6 +2,7 @@
 #include <sstream>
 #include <vector>
 #include <cstdio>
+#include <algorithm>
 
 using namespace std;
 
@@ -40,8 +41,13 @@ solution greedy_solve(solution s, int mod)
     ret.ok_ride = s.ok_ride;
     ret.sol = s.sol;
 
-    for (int i=0;i<n_cars;i++)
+    vector<int> order;
+    for(int i = 0; i < n_cars; i++) order.push_back(i);
+    //random_shuffle(order.begin(), order.end());
+    
+    for (int _i=0;_i<n_cars;_i++)
     {
+        int i = order[_i];
         if (!ret.sol[i].empty()) continue;
         int cur_t = 0;
         int cur_i = 0, cur_j = 0;
@@ -148,6 +154,65 @@ void print_output(const solution &sol, const char *filename)
     std::cerr << "Wrote output file " << filename << std::endl;
 }
 
+int score(const solution &s) { return 0; }
+
+void remove_car(solution &s, int c)
+{
+    for(int x : s.sol[c])
+        s.ok_ride[x] = 0;
+    s.sol[c].clear();
+}
+
+int calc_score(const solution &sol) {
+    int score = 0;
+    for(int i = 0; i < sol.ok_ride.size(); i++) {
+        if (sol.ok_ride[i] == 0) continue;
+        if (sol.ok_ride[i] == 2) score += start_bonus;
+        score += abs(rides[i].start_i-rides[i].end_i) + abs(rides[i].start_j-rides[i].end_j); 
+    }
+    return score;
+}
+
+bool equal(const solution &a, const solution &b)
+{
+    for(int i = 0; i < n_cars; i++)
+    {
+        if(a.sol[i].size() != b.sol[i].size())
+        {
+//            std::cerr << a.sol[i].size() << " " << b.sol[i].size() << " " << i << std::endl;
+            return false;
+        }
+        for(int j = 0; j < a.sol[i].size(); j++)
+            if(a.sol[i][j] != b.sol[i][j]) return false;
+    }
+
+    return true;
+}
+
+solution full_solve(solution init)
+{
+    init = greedy_solve(init, 0);
+    int curr_score = score(init);
+
+    for(int t = 0; t < 10000; t++)
+    {
+        for(int rem = 0; rem < 5; rem++)
+            remove_car(init, rand() % n_cars);
+
+        solution next = greedy_solve(init, rand() % 3);
+        if(equal(next, init)) std::cerr << "nothing changed" << std::endl;
+        int next_score = calc_score(next);
+        if(next_score > curr_score)
+        {
+            printf("Improved score to %d (+%d)\n", next_score, next_score - curr_score);
+            curr_score = next_score;
+            init = next;
+        }
+    }
+
+    return init;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc != 2)
@@ -171,16 +236,11 @@ int main(int argc, char *argv[])
     gr_sol.ok_ride = vector<int>(n_rides);
     gr_sol.sol = vector<vector<int> >(n_cars, vector<int>());
 
-    solution tst = greedy_solve(gr_sol, 0);
+    solution tst = full_solve(gr_sol);
 
-    print_output(tst, argv[1]);
-
-    std::cout << "Test " << argv[1] << std::endl;
-    std::cout << "map is " << rows << "x" << cols << std::endl;
-    std::cout << "num of cars = " << n_cars << std::endl;
-    std::cout << "num of rides = " << n_rides << std::endl;
-    std::cout << "bonus for starting on time = " << start_bonus << std::endl;
-    std::cout << "num of steps = " << steps << std::endl;
+    std::stringstream ss;
+    ss << "out/" << argv[1] << ".sol";
+    print_output(tst, ss.str().c_str());
     
     return 0;
 }
