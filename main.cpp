@@ -44,7 +44,8 @@ void clean_rides()
     {
         int startlen=rides[i].start_i+rides[i].start_j;
         int ridelen=abs(rides[i].end_i-rides[i].start_i)+abs(rides[i].end_j-rides[i].start_j);
-        if (startlen+ridelen<=rides[i].end_t && rides[i].end_t-rides[i].start_t<=ridelen)
+        int timewindow=rides[i].end_t-rides[i].start_t;
+        if (startlen+ridelen<=rides[i].end_t && timewindow>=ridelen)
         {
             nwrides.push_back(rides[i]);
         }
@@ -148,6 +149,10 @@ int main(int argc, char *argv[])
         else load_test(argv[1]);
     }
     else load_test(argv[1]);
+
+    printf("%d\n",rides.size());
+    clean_rides();
+    printf("%d\n",rides.size());
     
     return 0;
 }
