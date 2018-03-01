@@ -34,7 +34,7 @@ inline int max1(int a, int b)
 // mod: 0 --> arrange by arr_t
 // mod: 1 --> arrange by ret_t
 // mod: 2 --> arrange by dt
-solution greedy_solve(solution s, int mod)
+solution greedy_solve(solution s, int mod, bool bonuz)
 {
     solution ret;
     ret.ok_ride = s.ok_ride;
@@ -65,7 +65,7 @@ solution greedy_solve(solution s, int mod)
                     {
                         if (mod == 0)
                         {
-                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && arr_t < best_t)) 
+                            if (best_r == -1 || (bonuz && cur_st > best_st) || (bonuz && cur_st == best_st && arr_t < best_t) || (!bonuz && arr_t < best_t)) 
                             {
                                 // can also try ret_t < best_t
                                 best_r = j;
@@ -76,7 +76,7 @@ solution greedy_solve(solution s, int mod)
                         }
                         else if (mod == 1)
                         {
-                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && ret_t < best_t)) 
+                            if (best_r == -1 || (bonuz && cur_st > best_st) || (bonuz && cur_st == best_st && ret_t < best_t) || (!bonuz && ret_t < best_t)) 
                             {
                                 // can also try ret_t < best_t
                                 best_r = j;
@@ -87,7 +87,7 @@ solution greedy_solve(solution s, int mod)
                         }
                         else if (mod == 2)
                         {
-                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && dt < best_t)) 
+                            if (best_r == -1 || (bonuz && cur_st > best_st) || (bonuz && cur_st == best_st && dt < best_t) || (!bonuz && dt < best_t)) 
                             {
                                 // can also try ret_t < best_t
                                 best_r = j;
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     gr_sol.ok_ride = vector<int>(n_rides);
     gr_sol.sol = vector<vector<int> >(n_cars, vector<int>());
 
-    solution tst = greedy_solve(gr_sol, 0);
+    solution tst = greedy_solve(gr_sol, 0, true);
 
     print_output(tst, argv[1]);
 
