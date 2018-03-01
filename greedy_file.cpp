@@ -261,7 +261,7 @@ solution full_solve(solution init, int n_rem)
     int save_id = 0;
 
     bool first = true;
-    static const int TTL = (n_rem == 20) ? 12346789 : 50;
+    int TTL = (n_rem == 20) ? 12346789 : 200;
     int ttl = TTL;
     while(ttl--)
     {
@@ -277,7 +277,7 @@ solution full_solve(solution init, int n_rem)
         
         next = greedy_solve(next, rand() % 3, rand() % 2 > 0);
 //        if(n_rem == 50) next = full_solve(next, 20);
-        if(n_rem == 20) next = full_solve(next, 5);
+        if(n_rem > 5) next = full_solve(next, 5);
 
         for(int &x : next.ok_ride)
             if(x == 3) x = 0;
@@ -285,7 +285,7 @@ solution full_solve(solution init, int n_rem)
         int next_score = calc_score(next);
         if(next_score > curr_score)
         {
-            if(n_rem < 50) printf("    ");
+//            if(n_rem < 50) printf("    ");
             if(n_rem < 20) printf("    ");
             printf("Improved score to %d (+%d)\n", next_score, next_score - curr_score);
             curr_score = next_score;
@@ -305,7 +305,9 @@ solution full_solve(solution init, int n_rem)
             last_save = clock();
             std::cerr << "checkpoint " << save_id - 1 << ": " << calc_score(init) << std::endl;
         }
+
     }
+    std::cerr << "TTL expired" << std::endl;
 
     return init;
 }
