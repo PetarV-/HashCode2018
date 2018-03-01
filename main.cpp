@@ -36,6 +36,21 @@ void load_test(const char *test_name)
     fclose(f);
 }
 
+void clean_rides()
+{
+  vector <ride> nwrides;
+  for (int i=0; i<rides.size(); i++)
+  {
+    int startlen=rides[i].start_i+rides[i].start_j;
+    int ridelen=abs(rides[i].end_i-rides[i].start_i)+abs(rides[i].end_j-rides[i].start_j);
+    if (startlen+ridelen<=rides[i].end_t && rides[i].end_t-rides[i].start_t<=ridelen)
+    {
+      nwrides.push_back(rides[i]);
+    }
+  }
+  rides=nwrides;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc != 2)
