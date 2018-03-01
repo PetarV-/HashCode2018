@@ -151,14 +151,14 @@ int mx_score()
   return ret;
 }
 
-vector <int> end_to_start()
+vector <int> end_to_start(vector <int> sat)
 {
   vector <int> rt;
   for (int i=0; i<rides.size(); i++)
   {
     int mn=1<<25;
     for (int j=0; j<rides.size(); j++)
-      if (j!=i)
+      if (j!=i && sat[j]==0)
       {
         int nw=abs(rides[i].end_i-rides[j].start_i)+abs(rides[i].end_j-rides[j].start_j);
         nw=min(nw,mn);
