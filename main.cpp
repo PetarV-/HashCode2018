@@ -142,6 +142,31 @@ solution load_checkpoint(const char *filename)
     return res;
 }
 
+int mx_score()
+{
+  int ret=0;
+  for (int i=0; i<rides.size(); i++)
+    ret+=abs(rides[i].start_i-rides[i].end_i)+abs(rides[i].start_j-rides[i].end_j)+start_bonus;
+  return ret;
+}
+
+vector <int> end_to_start()
+{
+  vector <int> rt;
+  for (int i=0; i<rides.size(); i++)
+  {
+    int mn=1<<25;
+    for (int j=0; j<rides.size(); j++)
+      if (j!=i)
+      {
+        int nw=abs(rides[i].end_i-rides[j].start_i)+abs(rides[i].end_j-rides[j].start_j);
+        nw=min(nw,mn);
+      }
+    rt.push_back(mn);
+  }
+  return rt;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc != 2)
@@ -162,8 +187,10 @@ int main(int argc, char *argv[])
     else load_test(argv[1]);
 
     printf("%d\n",rides.size());
+    printf("%d\n",mx_score());
     clean_rides();
     printf("%d\n",rides.size());
+    printf("%d\n",mx_score());
     
     return 0;
 }
