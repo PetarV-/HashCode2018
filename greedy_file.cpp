@@ -39,6 +39,7 @@ solution greedy_solve(solution s)
 
     for (int i=0;i<n_cars;i++)
     {
+        if (!ret.sol[i].empty()) continue;
         int cur_t = 0;
         int cur_i = 0, cur_j = 0;
         while (true)
