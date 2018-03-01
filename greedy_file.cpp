@@ -31,7 +31,10 @@ inline int max1(int a, int b)
     return (a > b) ? a : b;
 }
 
-solution greedy_solve(solution s)
+// mod: 0 --> arrange by arr_t
+// mod: 1 --> arrange by ret_t
+// mod: 2 --> arrange by dt
+solution greedy_solve(solution s, int mod)
 {
     solution ret;
     ret.ok_ride = s.ok_ride;
@@ -60,13 +63,38 @@ solution greedy_solve(solution s)
                     int cur_st = (arr_t == rides[j].start_t) ? 2 : 1;
                     if (ret_t <= rides[j].end_t)
                     {
-                        if (best_r == -1 || cur_st > best_st || (cur_st == best_st && arr_t < best_t)) 
+                        if (mod == 0)
                         {
-                            // can also try ret_t < best_t
-                            best_r = j;
-                            best_t = arr_t;
-                            best_f = ret_t;
-                            best_st = (arr_t == rides[j].start_t) ? 2 : 1;
+                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && arr_t < best_t)) 
+                            {
+                                // can also try ret_t < best_t
+                                best_r = j;
+                                best_t = arr_t;
+                                best_f = ret_t;
+                                best_st = (arr_t == rides[j].start_t) ? 2 : 1;
+                            }
+                        }
+                        else if (mod == 1)
+                        {
+                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && ret_t < best_t)) 
+                            {
+                                // can also try ret_t < best_t
+                                best_r = j;
+                                best_t = ret_t;
+                                best_f = ret_t;
+                                best_st = (arr_t == rides[j].start_t) ? 2 : 1;
+                            }
+                        }
+                        else if (mod == 2)
+                        {
+                            if (best_r == -1 || cur_st > best_st || (cur_st == best_st && dt < best_t)) 
+                            {
+                                // can also try ret_t < best_t
+                                best_r = j;
+                                best_t = dt;
+                                best_f = ret_t;
+                                best_st = (arr_t == rides[j].start_t) ? 2 : 1;
+                            }
                         }
                     }
                 }
@@ -143,7 +171,7 @@ int main(int argc, char *argv[])
     gr_sol.ok_ride = vector<int>(n_rides);
     gr_sol.sol = vector<vector<int> >(n_cars, vector<int>());
 
-    solution tst = greedy_solve(gr_sol);
+    solution tst = greedy_solve(gr_sol, 0);
 
     print_output(tst, argv[1]);
 
