@@ -57,7 +57,7 @@ solution greedy_solve(solution s)
                     int tt = abs1(rides[j].end_i - rides[j].start_i) + abs1(rides[j].end_j - rides[j].start_j);
                     int arr_t = max1(rides[j].start_t, cur_t + dt);
                     int ret_t = arr_t + tt;
-                    int cur_st = (arr_t == rides[j].start_t);
+                    int cur_st = (arr_t == rides[j].start_t) ? 2 : 1;
                     if (ret_t <= rides[j].end_t)
                     {
                         if (best_r == -1 || cur_st > best_st || (cur_st == best_st && arr_t < best_t)) 
